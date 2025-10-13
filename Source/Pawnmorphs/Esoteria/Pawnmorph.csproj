@@ -47,16 +47,28 @@
     <Reference Include="0PrepatcherAPI">
       <HintPath>..\..\Dependencies\0PrepatcherAPI.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="AlienRace, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\AlienRace.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Data.DataSetExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Xml.Linq.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- Include the Rimworld assemblies if they exist (Krafs.Rimworld.Ref stubs will be used if not) -->
