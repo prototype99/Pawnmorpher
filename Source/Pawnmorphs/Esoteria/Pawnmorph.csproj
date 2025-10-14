@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -17,7 +17,24 @@
     <ErrorReport>prompt</ErrorReport>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <RimworldFolder Condition=" '$(RimworldFolder)' == '' ">F:\SteamLibrary\steamapps\common\RimWorld\RimWorldWin64_Data</RimworldFolder>
+    <!-- Enable NuGet PackageReference restore for this non-SDK project -->
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <!-- Prefer explicit env var, then OS-specific defaults, only if RimworldFolder not provided -->
+  <PropertyGroup Condition="'$(RimworldFolder)' == '' and '$(RIMWORLD_DATA)' != ''">
+    <RimworldFolder>$(RIMWORLD_DATA)</RimworldFolder>
+  </PropertyGroup>
+  <!-- Windows default RimWorld data folder (Steam) -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' and '$(RimworldFolder)' == ''">
+    <RimworldFolder>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data</RimworldFolder>
+  </PropertyGroup>
+  <!-- Linux default RimWorld data folder (Steam). Override RimworldFolder if yours differs. -->
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT' and '$(RimworldFolder)' == ''">
+    <RimworldFolder>$(HOME)/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux_Data</RimworldFolder>
+  </PropertyGroup>
+  <!-- macOS default RimWorld data folder (Steam/App) -->
+  <PropertyGroup Condition="'$(RimworldFolder)' == '' and Exists('/Applications/RimWorld.app/Contents/Resources/Data')">
+    <RimworldFolder>/Applications/RimWorld.app/Contents/Resources/Data</RimworldFolder>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +42,8 @@
     <Optimize>false</Optimize>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DocumentationFile>..\..\..\Documentation\Pawnmorph.xml</DocumentationFile>
-    <RimworldFolder Condition=" '$(RimworldFolder)' == '' ">F:\SteamLibrary\steamapps\common\RimWorld\RimWorldWin64_Data</RimworldFolder>
+    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,24 +70,56 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System">
-      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.dll</HintPath>
+  </ItemGroup>
+  <!-- Include the Rimworld assemblies if they exist -->
+  <ItemGroup Condition="Exists('$(RimworldFolder)\Managed\Assembly-CSharp.dll')">
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimworldFolder)\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System.Core">
-      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Core.dll</HintPath>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(RimworldFolder)\Managed\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System.Data">
-      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Data.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>$(RimworldFolder)\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Data.DataSetExtensions.dll</HintPath>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RimworldFolder)\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System.Xml">
-      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Xml.dll</HintPath>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(RimworldFolder)\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <HintPath>..\..\..\..\..\..\.steam\steam\steamapps\common\RimWorld\RimWorldLinux_Data\Managed\System.Xml.Linq.dll</HintPath>
+  </ItemGroup>
+  <!-- NuGet-provided reference assemblies for cross-platform builds -->
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.4.1">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <!-- Ensure Harmony is referenced at compile time even if PackageReference is not wired in this legacy csproj -->
+  <ItemGroup>
+    <Reference Include="0Harmony" Condition="Exists('$(NuGetPackageRoot)lib.harmony/2.4.1/lib/net48/0Harmony.dll')">
+      <HintPath>$(NuGetPackageRoot)lib.harmony/2.4.1/lib/net48/0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
+    <Reference Include="0Harmony" Condition="Exists('..\packages\Lib.Harmony.2.4.1\lib\net48\0Harmony.dll')">
+      <HintPath>..\packages\Lib.Harmony.2.4.1\lib\net48\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <!-- .NET Framework reference assemblies for non-Windows builds and RimWorld stubs when game assemblies are unavailable -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
   <!-- Include the Rimworld assemblies if they exist (Krafs.Rimworld.Ref stubs will be used if not) -->
   <ItemGroup>
@@ -748,18 +798,6 @@
     <Folder Include="Chambers\NewFolder1\" />
     <Folder Include="Events\" />
     <Folder Include="ITabs\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>1.6.4566</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Lib.Harmony">
-      <Version>2.4.1</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
   <!--Only use the Krafs stub if we can't access the real assembly -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
